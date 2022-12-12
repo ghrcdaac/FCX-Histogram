@@ -1,6 +1,6 @@
 import pandas as pd
 
-def start(request_columns=['FlashID', 'peak'], filename="goesr_plt_FEGS_20170321_Flash_v2.txt"):
+def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", request_columns=['FlashID', 'peak']):
     # fetch the data
     s3path=get_file_path(filename)
     

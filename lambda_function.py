@@ -34,7 +34,7 @@ def lambda_handler(event, context):
     selected_preporcessing = preprocessing_instruments.get(instrument_type, False)
     preprocessed_data = ''
     if (not selected_preporcessing):
-        preprocessed_data = selected_preporcessing(request_columns)
+        preprocessed_data = selected_preporcessing(filename, request_columns)
     
     if (not preprocessed_data):
         return {

@@ -35,3 +35,8 @@ def validate(request_columns):
     for request_column in set(request_columns):
         if(not request_column in FEGS_columns):
             return False
+    return True
+
+if __name__ == "__main__":
+    preprocessed_data = start()
+    print(preprocessed_data)

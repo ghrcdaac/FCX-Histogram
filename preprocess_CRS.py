@@ -1,5 +1,7 @@
 import pandas as pd
 import xarray as xr
+import s3fs
+import json
 
 def start(filename="GOESR_CRS_L1B_20170517_v0.nc", request_columns=['ref']):
     # fetch the data
@@ -9,11 +11,18 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", request_columns=['ref']):
     if not validate(request_columns):
         return False
     
-    # if okay, proceed to the necessary data
-    DF = xr.open_dataset(f'{s3path}#mode=bytes')
-    print(DF)
-    # return the processed data for render in JSON api specification format.
-    return DF.to_json(orient='split', index=False)
+    # use s3fs to mount s3 as fs and load data in xarray
+    fs = s3fs.S3FileSystem(anon=False)
+
+    with fs.open(s3path) as crsfile:
+        # if okay, proceed to the necessary data
+        DS = xr.open_dataset(crsfile, engine="scipy") # need to install scipy, a xr dependency to open crs file.
+    print(DS)
+
+    # preprocess the data, into appropriate format.
+    processed_data = {}
+    # return the processed data for render, in JSON api specification format.
+    return json.dumps(processed_data)
     
 # helper functions
 

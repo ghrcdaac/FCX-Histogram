@@ -35,7 +35,9 @@ def get_file_path(filename):
 
 def validate(request_columns):
     # Available columns for FEGS
-    CRS_columns = ('ref')
+    CRS_columns = ('time', 'gatesp', 'missing', 'range', 'incid', 'lat', 'lon',
+                    'roll', 'pitch', 'track', 'height', 'head', 'evel', 'nvel',
+                    'wvel', 'vacft', 'pwr', 'ref', 'dop', 'frequency')
     
     # validation
     for request_column in set(request_columns):

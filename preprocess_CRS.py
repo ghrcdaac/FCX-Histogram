@@ -9,7 +9,7 @@ CRS_columns = ('time', 'gatesp', 'missing', 'range', 'incid', 'lat', 'lon',
                 'roll', 'pitch', 'track', 'height', 'head', 'evel', 'nvel',
                 'wvel', 'vacft', 'pwr', 'ref', 'dop', 'frequency')
 
-def start(filename="GOESR_CRS_L1B_20170517_v0.nc", request_columns=['ref', 'time', 'range']):
+def start(filename="GOESR_CRS_L1B_20170517_v0.nc", request_columns=['ref', 'time', 'range'], range=1011.825, time=0):
     # fetch the data
     s3path=get_file_path(filename)
     
@@ -26,15 +26,23 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", request_columns=['ref', 'time
     with fs.open(s3path) as crsfile:
         # if okay, proceed to the necessary data
         DS = xr.open_dataset(crsfile, engine="scipy", drop_variables=nonRequestColumns) # need to install scipy, a xr dependency to open crs file.
-    print(DS)
 
     # preprocess the data, into appropriate format.
-    DF = DS.to_dataframe()
-    print(DF)
-    processed_data = DF
-    # processed_data = DF.to_json(orient='split', index=False)
+    processed_data = {}
+    if (not range == 0):
+        # for a given range, time will be the label, and values will be value of 'ref', accross that range
+        processed_data = {
+            "label": json.dumps(DS['time'].values.tolist()),
+            "data": json.dumps(DS['ref'].sel(range=range).values.tolist())
+        }
+    elif (not time == 0):
+        # for a given time, range will be the label, and values will be value of 'ref', accross that time
+        processed_data = {
+            "label": json.dumps(DS['range'].values.tolist()),
+            "data": json.dumps(DS['ref'].sel(time=time).values.tolist())
+        }
     # return the processed data for render, in JSON api specification format.
-    return processed_data
+    return json.dumps(processed_data)
     
 # helper functions
 

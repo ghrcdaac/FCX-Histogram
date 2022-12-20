@@ -1,0 +1,41 @@
+import pandas as pd
+
+# Available columns for LIP
+LIP_columns = ('Date', 'Time', 'Ex', 'Ey', 'Ez', 'Eq', 'Lat', 'Lon', 'Alt', 'Roll', 'Pitch', 'Heading')
+
+def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='Eq'):
+    request_columns=[coord_type, data_type]
+
+    # fetch the data
+    s3path=get_file_path(filename)
+    
+    # validate
+    if not validate(request_columns):
+        return False
+    
+    # if okay, proceed to the necessary data
+    DF = pd.read_csv(s3path, sep=" ", names=LIP_columns, index_col='Time', usecols=request_columns)
+    # print(DF.describe)
+    
+    # return the processed data for render in JSON api specification format.
+    return DF.to_json(orient='split')
+    
+# helper functions
+
+def get_file_path(filename):
+    bucket_src = "fcx-raw-data-temp"
+    # bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
+    path_to_file="LIP/data"
+    # path_to_file = os.environ.get('PATH_TO_LIP')
+    return f"s3://{bucket_src}/{path_to_file}/{filename}"
+
+def validate(request_columns):
+    # validation
+    for request_column in set(request_columns):
+        if(not request_column in LIP_columns):
+            return False
+    return True
+
+if __name__ == "__main__":
+    preprocessed_data = start()
+    print(preprocessed_data)

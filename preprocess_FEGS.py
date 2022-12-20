@@ -1,6 +1,8 @@
 import pandas as pd
 
-def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", request_columns=['FlashID', 'peak']):
+def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", coord_type="FlashID", data_type="peak"):
+    request_columns = [coord_type, data_type]
+
     # fetch the data
     s3path=get_file_path(filename)
     
@@ -9,11 +11,12 @@ def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", request_columns=['Fla
         return False
     
     # if okay, proceed to the necessary data
-    DF = pd.read_csv(s3path, sep=",",index_col=None,usecols=request_columns)
-    # print(DF.describe)
-    
+    DF = pd.read_csv(s3path, sep=",", index_col=coord_type, usecols=request_columns)
+
+    filtered = DF[DF[data_type].notnull()]
+
     # return the processed data for render in JSON api specification format.
-    return DF.to_json(orient='split', index=False)
+    return filtered.to_json(orient='split')
     
 # helper functions
 

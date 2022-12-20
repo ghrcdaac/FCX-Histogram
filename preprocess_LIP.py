@@ -14,12 +14,11 @@ def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='E
         return False
     
     # if okay, proceed to the necessary data
-    DF = pd.read_csv(s3path, sep=", ", names=LIP_columns, index_col='Time', usecols=request_columns, engine='python')
+    DF = pd.read_csv(s3path, sep=", ", names=LIP_columns, index_col=coord_type, usecols=request_columns, engine='python')
     # print(DF.describe)
     
     # Filter NaN datas
-    filtered = DF[DF['Eq'].notnull()]
-    filtered
+    filtered = DF[DF[data_type].notnull()]
 
     # return the processed data for render in JSON api specification format.
     return filtered.to_json(orient='split')

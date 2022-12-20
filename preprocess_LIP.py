@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Available columns for LIP
-LIP_columns = ('Date', 'Time', 'Ex', 'Ey', 'Ez', 'Eq', 'Lat', 'Lon', 'Alt', 'Roll', 'Pitch', 'Heading')
+LIP_columns = ('Time', 'Ex', 'Ey', 'Ez', 'Eq', 'Lat', 'Lon', 'Alt', 'Roll', 'Pitch', 'Heading')
 
 def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='Eq'):
     request_columns=[coord_type, data_type]
@@ -14,11 +14,15 @@ def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='E
         return False
     
     # if okay, proceed to the necessary data
-    DF = pd.read_csv(s3path, sep=" ", names=LIP_columns, index_col='Time', usecols=request_columns)
+    DF = pd.read_csv(s3path, sep=", ", names=LIP_columns, index_col='Time', usecols=request_columns, engine='python')
     # print(DF.describe)
     
+    # Filter NaN datas
+    filtered = DF[DF['Eq'].notnull()]
+    filtered
+
     # return the processed data for render in JSON api specification format.
-    return DF.to_json(orient='split')
+    return filtered.to_json(orient='split')
     
 # helper functions
 

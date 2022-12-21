@@ -1,8 +1,6 @@
-import xarray as xr
 import numpy as np
-import pandas as pd
 import s3fs
-import json
+import h5py
 
 # Available columns for FEGS
 CPL_columns = ('ATB_1064', 'ATB_1064_PERP', 'ATB_355', 'ATB_532', 'Bin_Alt', 'Bin_Width', 'Cali_1064',
@@ -12,7 +10,22 @@ CPL_columns = ('ATB_1064', 'ATB_1064_PERP', 'ATB_355', 'ATB_532', 'Bin_Alt', 'Bi
                 'Plane_Pitch', 'Plane_Roll', 'Pressure', 'Project', 'RH', 'Saturate', 'Second', 'Solar_Azimuth_Angle',
                 'Solar_Elevation_Angle', 'Start_JDay', 'Temperature')
 
-def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", request_columns=['ATB_1064', 'ATB_1064_PERP', 'ATB_355', 'ATB_532']):
+def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Second", data_type="ATB_1064", params=0):
+    """
+    Description
+
+    Args:
+        filename (string): string filename.nc
+        coord_type (string): Second
+        data_type (string): Type of data to be
+        param (string): param has the value of the nth second.
+                        value of datatype for nth second will be returned.
+                        Example: All the values for ATB_1064 will be returned, for the 11th second of the instrument.
+
+    Returns:
+        processed_data: json with data and their coordinate labels (index)
+    """
+    request_columns=[coord_type, data_type]
     # fetch the data
     s3path=get_file_path(filename)
     
@@ -23,19 +36,19 @@ def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", request_columns=[
     # use s3fs to mount s3 as fs and load data in xarray
     fs = s3fs.S3FileSystem(anon=False)
 
-    print(s3path)
-    # before loading, seperate out the columns that is not necessary
-    nonRequestColumns = np.setdiff1d(CPL_columns, request_columns)
-    with fs.open(s3path) as cplfile:
-        # if okay, proceed to the necessary data
-        DS = xr.open_dataset(cplfile, engine="h5netcdf", drop_variables=nonRequestColumns) # need to install scipy, a xr dependency to open crs file.
-    print(DS)
+    processed_data = {}
 
-    # preprocess the data, into appropriate format.
-    DF = DS.to_dataframe()
-    print(DF)
-    processed_data = DF
-    # processed_data = DF.to_json(orient='split', index=False)
+    with fs.open(s3path) as cplfile:
+        with h5py.File(cplfile, 'r') as DG: # DataGroup
+            ATB_X_ds = DG[data_type] # ds: dataset
+            ATB_X = ATB_X_ds[0:ATB_X_ds.shape[0]] # slicing to get the data
+            processed_data = {
+                "columns": [data_type],
+                "index": list(range(0, ATB_X_ds.shape[1])),
+                # for a specific second, get all the ATB data
+                "data": ATB_X[params].tolist() # accross a time (sec) received in param, get all the values of the asked data_type
+            }
+
     # return the processed data for render, in JSON api specification format.
     return processed_data
     

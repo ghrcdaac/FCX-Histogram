@@ -99,17 +99,31 @@ def get_filename(instrument, date):
         return filename_cpl(fdate)
 
 def filename_fegs(date = '20170321'):
+    # available date ranges from March 21, 2017 to May 17, 2017
+    # Flash and pulse data are unavailable for the following flight dates: March 23 and 28, April 6, 11 and 13, and May 7, 2017.
+
     # return 'goesr_plt_FEGS_YYYYMMDD_[Flash|Pulse|MedianBG]_[v2|vK2].txt'
     return f"goesr_plt_FEGS_{date}_Flash_v2.txt"
 
 def filename_lip(date = '20170517'):
+    # available date ranges from March 21, 2017 to May 17, 2017
+    # Two data files for April 6, 2017 and April 27, 2017 are not included in this dataset due to missing navigation information;
+
     # return 'goesr_plt_lip_YYYYMMDD.txt'
     return f"goesr_plt_lip_{date}.txt"
 
 def filename_crs(date = '20170517'):
+    # available date ranges from April 11, 2017 to May 17, 2017
+    # The ER-2 aircraft did not operate each day of the campaign, so CRS data are only available for aircraft flight days.
+    # Which date are they available for then ???
+
     # return 'GOESR_CRS_L1B_YYYYMMDD_v0.nc'
     return f"GOESR_CRS_L1B_{date}_v0.nc"
 
 def filename_cpl(date = '20170427'):
+    # available date ranges from April 13, 2017 to May 14, 2017
+    # Also, the ER-2 aircraft did not operate each day of the campaign, therefore, data are only available on flight days.
+    # Which date are they available for then ???
+
     # return "goesrplt_CPL_[ATB|ATB-4sec]_L1B_<flight>_<YYYYMMDD>.hdf5"
     return f"goesrplt_CPL_ATB_L1B_17930_{date}.hdf5"

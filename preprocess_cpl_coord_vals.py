@@ -13,6 +13,7 @@ CPL_columns = ('ATB_1064', 'ATB_1064_PERP', 'ATB_355', 'ATB_532', 'Bin_Alt', 'Bi
 def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Second"):
     """
     Description
+    get coordinate values in CRS. Needed to index out a point in 3d coordinate to get a 2d dataset, for histogram visualization
 
     Args:
         filename (string): string filename.nc

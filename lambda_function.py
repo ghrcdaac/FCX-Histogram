@@ -5,6 +5,9 @@ from .preprocess_FEGS import start as startFEGS
 from .preprocess_CRS import start as startCRS
 from .preprocess_CPL import start as startCPL
 from .preprocess_LIP import start as startLIP
+from .preprocess_cpl_coord_vals import start as getCPLCoords
+from .preprocess_crs_coord_vals import start as getCRSCoords
+
 
 def lambda_handler(event, context):
     body = json.loads(event["body"]) #dictonary
@@ -44,34 +47,59 @@ def lambda_handler(event, context):
         }
 
     # todo: if no data_type given, then the request is for coord values. return it.
+    if (not data_type):
+        preprocessing_instruments_coords = { 
+            'CRS': getCRSCoords,
+            'CPL': getCPLCoords
+        }
+        get_instrument_coords = preprocessing_instruments_coords.get(instrument_type, False)
+        preprocessed_data = {}
+        if (get_instrument_coords):
+            preprocessed_data = get_instrument_coords(filename, coord_type)
+        
+        if (not preprocessed_data):
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Headers': 'Content-Type',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST,GET'
+                },
+                'body': "The requested instrument or column data for preprocessing doesnot Exist."
+                }
+        
+        responseBody = {
+                    'message': "Subsetting lambda function invoked.",
+                    'data' : preprocessed_data
+                }
+    else:
+        preprocessing_instruments = {
+            'FEGS': startFEGS,
+            'LIP': startLIP, 
+            'CRS': startCRS,
+            'CPL': startCPL
+        }
 
-    preprocessing_instruments = {
-        'FEGS': startFEGS,
-        'LIP': startLIP, 
-        'CRS': startCRS,
-        'CPL': startCPL
-    }
-
-    selected_preporcessing = preprocessing_instruments.get(instrument_type, False)
-    preprocessed_data = {}
-    if (selected_preporcessing):
-        preprocessed_data = selected_preporcessing(filename, coord_type, data_type, params)
-    
-    if (not preprocessed_data):
-        return {
-            'statusCode': 400,
-            'headers': {
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST,GET'
-            },
-            'body': "The requested instrument or column data for preprocessing doesnot Exist."
-            }
-    
-    responseBody = {
-                'message': "Subsetting lambda function invoked.",
-                'data' : preprocessed_data
-            }
+        selected_preporcessing = preprocessing_instruments.get(instrument_type, False)
+        preprocessed_data = {}
+        if (selected_preporcessing):
+            preprocessed_data = selected_preporcessing(filename, coord_type, data_type, params)
+        
+        if (not preprocessed_data):
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Headers': 'Content-Type',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST,GET'
+                },
+                'body': "The requested instrument or column data for preprocessing doesnot Exist."
+                }
+        
+        responseBody = {
+                    'message': "Subsetting lambda function invoked.",
+                    'data' : preprocessed_data
+                }
 
     # SERIALIZE DATA START
     serializedResponse = DataPreprocessingSerializerSchema().dumps(responseBody) #serialize

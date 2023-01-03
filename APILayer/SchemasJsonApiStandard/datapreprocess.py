@@ -9,13 +9,15 @@ class DataPreprocessingSerializerSchema(Schema):
 
     class Meta:
         type_ = "data_pre_process_response"
-        
+
 # De-Serializers, after receiving data
 class DataPreprocessingDeserializerSchema(Schema):
     id = fields.Str(dump_only=True)
     instrument_type = fields.Str(required=True)
-    filename = fields.Str(required=True)
-    request_columns = fields.Str(required=True)
-    
+    datetime = fields.Str(required=True)
+    coord_type = fields.Str(required=True)
+    data_type = fields.Str(required=True)
+    params = fields.Str(required=True)
+
     class Meta:
         type_ = "data_pre_process_request"

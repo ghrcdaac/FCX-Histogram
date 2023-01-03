@@ -1,10 +1,15 @@
 import json
-from APILayer.SchemasJsonApiStandard.triggerSubset import DataPreprocessingDeserializerSchema, DataPreprocessingSerializerSchema
+from APILayer.SchemasJsonApiStandard.datapreprocess import DataPreprocessingDeserializerSchema, DataPreprocessingSerializerSchema
 from .preprocess_FEGS import start as startFEGS
+from .preprocess_CRS import start as startCRS
+from .preprocess_CPL import start as startCPL
+from .preprocess_LIP import start as startLIP
 
 def lambda_handler(event, context):
     body = json.loads(event["body"]) #dictonary
     payload = {}
+
+    # prepare the data required to call the instrument preprocessors
 
     # # DESERIALIZE DATA START
     validataionError = DataPreprocessingDeserializerSchema().validate(body)
@@ -22,19 +27,21 @@ def lambda_handler(event, context):
     payload = DataPreprocessingDeserializerSchema().load(body) #deserilalize
     # DESERIALIZE DATA END
 
-    instrument_type = payload['instrument_type'], filename = payload['filename'], request_columns = payload['request_columns']
+    instrument_type = payload['instrument_type'], datetime = payload['datetime'], coord_type = payload['coord_type'], data_type = payload['data_type'], params = payload['params']
     
+    filename = get_filename(instrument_type, datetime)
+
     preprocessing_instruments = {
         'FEGS': startFEGS,
-        'LIPS': startFEGS, 
-        'CRS': startFEGS,
-        'CPL': startFEGS
+        'LIP': startLIP, 
+        'CRS': startCRS,
+        'CPL': startCPL
     }
 
     selected_preporcessing = preprocessing_instruments.get(instrument_type, False)
-    preprocessed_data = ''
-    if (not selected_preporcessing):
-        preprocessed_data = selected_preporcessing(filename, request_columns)
+    preprocessed_data = {}
+    if (selected_preporcessing):
+        preprocessed_data = selected_preporcessing(filename, coord_type, data_type, params)
     
     if (not preprocessed_data):
         return {
@@ -65,3 +72,8 @@ def lambda_handler(event, context):
         },
         'body': serializedResponse
     }
+
+def get_filename(instrument, datetime):
+    # using the instrument type and datetime, get the filename for the preprocessed data.
+    # refer. data manual for each instrument type
+    return "goesr_plt_lip_20170517.txt"

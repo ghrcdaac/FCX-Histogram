@@ -1,4 +1,5 @@
 import json
+import boto3
 from APILayer.SchemasJsonApiStandard.datapreprocess import DataPreprocessingDeserializerSchema, DataPreprocessingSerializerSchema
 from .preprocess_FEGS import start as startFEGS
 from .preprocess_CRS import start as startCRS
@@ -29,8 +30,20 @@ def lambda_handler(event, context):
 
     instrument_type = payload['instrument_type'], datetime = payload['datetime'], coord_type = payload['coord_type'], data_type = payload['data_type'], params = payload['params']
     
-    # validate datetime and instrument type.
+    # validate if data corresponding to datetime and instrument type is available.
     filename = get_filename(instrument_type, datetime)
+    if(not validate_filename(instrument_type, filename)):
+        return {
+            'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST,GET'
+            },
+            'body': 'File for given instrument in the given date is not available.'
+        }
+
+    # todo: if no data_type given, then the request is for coord values. return it.
 
     preprocessing_instruments = {
         'FEGS': startFEGS,
@@ -127,3 +140,35 @@ def filename_cpl(date = '20170427'):
 
     # return "goesrplt_CPL_[ATB|ATB-4sec]_L1B_<flight>_<YYYYMMDD>.hdf5"
     return f"goesrplt_CPL_ATB_L1B_17930_{date}.hdf5"
+
+
+def validate_filename(instrument_type, filename):
+    bucket_src = "fcx-raw-data-temp"
+    # bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
+    s3_client = boto3.client('s3')
+    file_src = get_file_path(instrument_type, filename)
+    try:
+        # if File_bck is Found
+        s3_client.head_object(Bucket=bucket_src, Key=f'{file_src}')
+        print(f'File with "{filename}" name found.')
+        return True
+    except:
+        # if file is not found
+        print(f'Previous backup file with name "{filename}" doesnot exists.\n')
+        return False
+
+def get_file_path(instrument_type, filename):
+    bucket_src = "fcx-raw-data-temp"
+    # bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
+    if (instrument_type == "FEGS"):
+        path_to_file = "FEGS/data"
+    if (instrument_type == "LIP"):
+        path_to_file = "LIP/data"
+    if (instrument_type == "CRS"):
+        path_to_file = "CRS/data"
+    if (instrument_type == "CPL"):
+        path_to_file = "CPL/data/L1B"
+
+    path_to_file="CPL/data/L1B"
+    # path_to_file = os.environ.get('PATH_TO_FEGS')
+    return f"s3://{bucket_src}/{path_to_file}/{filename}"

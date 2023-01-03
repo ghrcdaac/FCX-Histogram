@@ -29,6 +29,7 @@ def lambda_handler(event, context):
 
     instrument_type = payload['instrument_type'], datetime = payload['datetime'], coord_type = payload['coord_type'], data_type = payload['data_type'], params = payload['params']
     
+    # validate datetime and instrument type.
     filename = get_filename(instrument_type, datetime)
 
     preprocessing_instruments = {
@@ -73,7 +74,42 @@ def lambda_handler(event, context):
         'body': serializedResponse
     }
 
-def get_filename(instrument, datetime):
+def get_filename(instrument, date):
     # using the instrument type and datetime, get the filename for the preprocessed data.
     # refer. data manual for each instrument type
-    return "goesr_plt_lip_20170517.txt"
+    """
+    Description
+
+    Args:
+        instrument (string): The name of the instrument from which the data is to be read
+        date (string): The date where the instrument collected data . format it to be in YYYY-MM-DD format.
+
+    Returns:
+        file_name (string): particular filename for the data of the instrument in the specified date.
+    """
+    # convert to fdatetime
+    fdate = date.replace("-", "")
+    if (instrument == "FEGS"):
+        return filename_fegs(fdate)
+    elif (instrument == "LIP"):
+        return filename_lip(fdate)
+    elif (instrument == "CRS"):
+        return filename_crs(fdate)
+    elif (instrument == "CPL"):
+        return filename_cpl(fdate)
+
+def filename_fegs(date = '20170321'):
+    # return 'goesr_plt_FEGS_YYYYMMDD_[Flash|Pulse|MedianBG]_[v2|vK2].txt'
+    return f"goesr_plt_FEGS_{date}_Flash_v2.txt"
+
+def filename_lip(date = '20170517'):
+    # return 'goesr_plt_lip_YYYYMMDD.txt'
+    return f"goesr_plt_lip_{date}.txt"
+
+def filename_crs(date = '20170517'):
+    # return 'GOESR_CRS_L1B_YYYYMMDD_v0.nc'
+    return f"GOESR_CRS_L1B_{date}_v0.nc"
+
+def filename_cpl(date = '20170427'):
+    # return "goesrplt_CPL_[ATB|ATB-4sec]_L1B_<flight>_<YYYYMMDD>.hdf5"
+    return f"goesrplt_CPL_ATB_L1B_17930_{date}.hdf5"

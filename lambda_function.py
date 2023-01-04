@@ -8,6 +8,7 @@ from .preprocess_LIP import start as startLIP
 from .preprocess_cpl_coord_vals import start as getCPLCoords
 from .preprocess_crs_coord_vals import start as getCRSCoords
 
+from .helpers.pagination import Pagination
 
 def lambda_handler(event, context):
     body = json.loads(event["body"]) #dictonary
@@ -31,7 +32,8 @@ def lambda_handler(event, context):
     payload = DataPreprocessingDeserializerSchema().load(body) #deserilalize
     # DESERIALIZE DATA END
 
-    instrument_type = payload['instrument_type'], datetime = payload['datetime'], coord_type = payload['coord_type'], data_type = payload['data_type'], params = payload['params']
+    instrument_type = payload['instrument_type'], datetime = payload['datetime'], coord_type = payload['coord_type'],
+    data_type = payload['data_type'], params = payload['params'], pageno = params['pageno'], pagesize = params['pagesize']
 
     # validate if data corresponding to datetime and instrument type is available.
     filename = get_filename(instrument_type, datetime)
@@ -50,7 +52,7 @@ def lambda_handler(event, context):
     if (not data_type):
         response_body = col_request_handler(filename, instrument_type, coord_type)
     else:
-        response_body = data_request_handler(filename, instrument_type, coord_type, data_type, params)
+        response_body = data_request_handler(filename, instrument_type, coord_type, data_type, params, pageno, pagesize)
 
     # SERIALIZE DATA START
     serialized_response = DataPreprocessingSerializerSchema().dumps(response_body) #serialize
@@ -107,7 +109,7 @@ def col_request_handler(filename, instrument_type, coord_type):
                 'data' : preprocessed_data
             }
 
-def data_request_handler(filename, instrument_type, coord_type, data_type, params):
+def data_request_handler(filename, instrument_type, coord_type, data_type, params, pageno, pagesize):
     """
     This function handles the request for the 2D data, for histogram plots
 
@@ -121,6 +123,8 @@ def data_request_handler(filename, instrument_type, coord_type, data_type, param
                          and get the next coordinate (say second) and data values corresponding to that specific value.
                          Hence, managing 2D data set for histogram plot, from a 3D dataset.
                          Note: This is a optional paramater, if the dataset is 2-dim. i.e. 1st-dim as coordinate, and 2nd dim as data values
+        pageno (number): the page to get the data from
+        pagesize (number): the no of data rows to include per page
 
     Returns:
         dictonary: The dictonary contains "columns", "index" and "data" as keys, necessary for 2-d histogram plot.
@@ -139,7 +143,7 @@ def data_request_handler(filename, instrument_type, coord_type, data_type, param
     selected_preporcessing = preprocessing_instruments.get(instrument_type, False)
     preprocessed_data = {}
     if (selected_preporcessing):
-        preprocessed_data = selected_preporcessing(filename, coord_type, data_type, params)
+        preprocessed_data = selected_preporcessing(filename, coord_type, data_type, params, pageno, pagesize)
 
     if (not preprocessed_data):
         return {
@@ -252,10 +256,3 @@ def get_file_path(instrument_type, filename):
     return f"s3://{bucket_src}/{path_to_file}/{filename}"
 
 ## FILE VALIDATION END
-
-## DATA PAGING START
-
-def pagination():
-    pass
-
-## DATA PAGING END

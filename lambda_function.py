@@ -32,7 +32,7 @@ def lambda_handler(event, context):
     # DESERIALIZE DATA END
 
     instrument_type = payload['instrument_type'], datetime = payload['datetime'], coord_type = payload['coord_type'], data_type = payload['data_type'], params = payload['params']
-    
+
     # validate if data corresponding to datetime and instrument type is available.
     filename = get_filename(instrument_type, datetime)
     if(not validate_filename(instrument_type, filename)):
@@ -46,63 +46,14 @@ def lambda_handler(event, context):
             'body': 'File for given instrument in the given date is not available.'
         }
 
-    # todo: if no data_type given, then the request is for coord values. return it.
+    # if data_type is not provided in request, then the request is for coord values only.
     if (not data_type):
-        preprocessing_instruments_coords = { 
-            'CRS': getCRSCoords,
-            'CPL': getCPLCoords
-        }
-        get_instrument_coords = preprocessing_instruments_coords.get(instrument_type, False)
-        preprocessed_data = {}
-        if (get_instrument_coords):
-            preprocessed_data = get_instrument_coords(filename, coord_type)
-        
-        if (not preprocessed_data):
-            return {
-                'statusCode': 400,
-                'headers': {
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'POST,GET'
-                },
-                'body': "The requested instrument or column data for preprocessing doesnot Exist."
-                }
-        
-        responseBody = {
-                    'message': "Subsetting lambda function invoked.",
-                    'data' : preprocessed_data
-                }
+        response_body = col_request_handler(filename, instrument_type, coord_type)
     else:
-        preprocessing_instruments = {
-            'FEGS': startFEGS,
-            'LIP': startLIP, 
-            'CRS': startCRS,
-            'CPL': startCPL
-        }
-
-        selected_preporcessing = preprocessing_instruments.get(instrument_type, False)
-        preprocessed_data = {}
-        if (selected_preporcessing):
-            preprocessed_data = selected_preporcessing(filename, coord_type, data_type, params)
-        
-        if (not preprocessed_data):
-            return {
-                'statusCode': 400,
-                'headers': {
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'POST,GET'
-                },
-                'body': "The requested instrument or column data for preprocessing doesnot Exist."
-                }
-        
-        responseBody = {
-                    'message': "Subsetting lambda function invoked.",
-                    'data' : preprocessed_data
-                }
+        response_body = data_request_handler(filename, instrument_type, coord_type, data_type, params)
 
     # SERIALIZE DATA START
-    serializedResponse = DataPreprocessingSerializerSchema().dumps(responseBody) #serialize
+    serialized_response = DataPreprocessingSerializerSchema().dumps(response_body) #serialize
     # SERIALIZE DATA END
 
     return {
@@ -112,8 +63,103 @@ def lambda_handler(event, context):
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST,GET'
         },
-        'body': serializedResponse
+        'body': serialized_response
     }
+
+## REQUEST HANDLERS START
+
+def col_request_handler(filename, instrument_type, coord_type):
+    """
+    This function handles the request for the column data.
+    When a coordinate values is requested for a specific filename (includes dates), for a specific instrument,
+    this function returns the column data
+
+    Args:
+        filename (string): name of the data file, from which the column values are to be extracted
+        instrument_type (string): the type of instrument, from which the data was collected
+        coord_type (string): the name of the coordinate (column), which values are to be extracted
+
+    Returns:
+        dictonary: the dictonary contains "coordinate_value" as the key, and an array of coordinate values as the value 
+    """
+    preprocessing_instruments_coords = { 
+                'CRS': getCRSCoords,
+                'CPL': getCPLCoords
+            }
+    get_instrument_coords = preprocessing_instruments_coords.get(instrument_type, False)
+    preprocessed_data = {}
+    if (get_instrument_coords):
+        preprocessed_data = get_instrument_coords(filename, coord_type)
+
+    if (not preprocessed_data):
+        return {
+            'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST,GET'
+            },
+            'body': "The requested instrument or column data for preprocessing doesnot Exist."
+            }
+
+    return {
+                'message': "Subsetting lambda function invoked.",
+                'data' : preprocessed_data
+            }
+
+def data_request_handler(filename, instrument_type, coord_type, data_type, params):
+    """
+    This function handles the request for the 2D data, for histogram plots
+
+    Args:
+        filename (string): name of the data file, from which the 2-dim data are to be extracted
+        instrument_type (string): the type of instrument, from which the data was collected
+        coord_type (string): the name of the coordinate (column), which values are to be extracted. The first dim.
+        data_type (string): the name of the corresponding data, which values are to be extracted. The second dim.
+        params (string): when the data set has 2-D coordiates pointing to a data value (where data value is the 3rd-dim), 
+                         use one value of the either coordinate (say first)
+                         and get the next coordinate (say second) and data values corresponding to that specific value.
+                         Hence, managing 2D data set for histogram plot, from a 3D dataset.
+                         Note: This is a optional paramater, if the dataset is 2-dim. i.e. 1st-dim as coordinate, and 2nd dim as data values
+
+    Returns:
+        dictonary: The dictonary contains "columns", "index" and "data" as keys, necessary for 2-d histogram plot.
+                    index (array): values for the first coordinate
+                    data (array): values for the second coordinate
+                    columns (array): name of those 2-d coordinates
+                    Note: the key here are named with reference to the data which are needed by three.js for plots.
+    """
+    preprocessing_instruments = {
+                'FEGS': startFEGS,
+                'LIP': startLIP,
+                'CRS': startCRS,
+                'CPL': startCPL
+            }
+
+    selected_preporcessing = preprocessing_instruments.get(instrument_type, False)
+    preprocessed_data = {}
+    if (selected_preporcessing):
+        preprocessed_data = selected_preporcessing(filename, coord_type, data_type, params)
+
+    if (not preprocessed_data):
+        return {
+            'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST,GET'
+            },
+            'body': "The requested instrument or column data for preprocessing doesnot Exist."
+            }
+
+    return {
+                'message': "Subsetting lambda function invoked.",
+                'data' : preprocessed_data
+            }
+
+## REQUEST HANDLERS END
+
+## FILENAME HANDLERS START
 
 def get_filename(instrument, date):
     # using the instrument type and datetime, get the filename for the preprocessed data.
@@ -169,6 +215,10 @@ def filename_cpl(date = '20170427'):
     # return "goesrplt_CPL_[ATB|ATB-4sec]_L1B_<flight>_<YYYYMMDD>.hdf5"
     return f"goesrplt_CPL_ATB_L1B_17930_{date}.hdf5"
 
+## FILENAME HANDLERS END
+
+
+## FILE (AVAILABILITY) VALIDATION
 
 def validate_filename(instrument_type, filename):
     bucket_src = "fcx-raw-data-temp"
@@ -200,3 +250,5 @@ def get_file_path(instrument_type, filename):
     path_to_file="CPL/data/L1B"
     # path_to_file = os.environ.get('PATH_TO_FEGS')
     return f"s3://{bucket_src}/{path_to_file}/{filename}"
+
+## FILE VALIDATION END

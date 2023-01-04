@@ -18,6 +18,8 @@ class DataPreprocessingDeserializerSchema(Schema):
     coord_type = fields.Str(required=True)
     data_type = fields.Str(required=True)
     params = fields.Str(required=True)
+    pageno = fields.Str(required=True)
+    pagesize = fields.Str(required=True)
 
     class Meta:
         type_ = "data_pre_process_request"

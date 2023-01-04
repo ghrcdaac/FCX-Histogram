@@ -252,3 +252,10 @@ def get_file_path(instrument_type, filename):
     return f"s3://{bucket_src}/{path_to_file}/{filename}"
 
 ## FILE VALIDATION END
+
+## DATA PAGING START
+
+def pagination():
+    pass
+
+## DATA PAGING END

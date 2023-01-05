@@ -1,5 +1,5 @@
 import pandas as pd
-from .helpers.pagination import Pagination
+from helpers.pagination import Pagination
 
 # Available columns for LIP
 LIP_columns = ('Time', 'Ex', 'Ey', 'Ez', 'Eq', 'Lat', 'Lon', 'Alt', 'Roll', 'Pitch', 'Heading')

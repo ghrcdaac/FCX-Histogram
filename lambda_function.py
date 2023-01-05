@@ -8,8 +8,6 @@ from .preprocess_LIP import start as startLIP
 from .preprocess_cpl_coord_vals import start as getCPLCoords
 from .preprocess_crs_coord_vals import start as getCRSCoords
 
-from .helpers.pagination import Pagination
-
 def lambda_handler(event, context):
     body = json.loads(event["body"]) #dictonary
     payload = {}

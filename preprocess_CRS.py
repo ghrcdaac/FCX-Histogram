@@ -42,7 +42,7 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
     nonRequestColumns = np.setdiff1d(CRS_columns, request_columns)
     with fs.open(s3path) as crsfile:
         # if okay, proceed to the necessary data
-        DS = xr.open_dataset(crsfile, engine="scipy", drop_variables=nonRequestColumns) # need to install scipy, a xr dependency to open crs file.
+        DS = xr.open_dataset(crsfile, engine="scipy", drop_variables=nonRequestColumns, chunks="auto") # need to install scipy, a xr dependency to open crs file.
 
     # preprocess the data, into appropriate format.
     processed_data = {} # format in the form of split oriented json of pandas.

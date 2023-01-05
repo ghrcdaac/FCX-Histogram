@@ -3,13 +3,14 @@ import numpy as np
 import pandas as pd
 import s3fs
 import json
+from helpers.pagination import Pagination
 
 # Available columns for FEGS
 CRS_columns = ('time', 'gatesp', 'missing', 'range', 'incid', 'lat', 'lon',
                 'roll', 'pitch', 'track', 'height', 'head', 'evel', 'nvel',
                 'wvel', 'vacft', 'pwr', 'ref', 'dop', 'frequency')
 
-def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type='ref', param="1011.825"):
+def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type='ref', param="1011.825", pageno=1, pagesize=50):
     """
     Description
 
@@ -29,6 +30,11 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
     if not validate(request_columns):
         return False
     
+    # page to index conversion
+    pg = Pagination(pageno, pagesize)
+    start_index = pg.get_offset()
+    end_index = start_index + pg.get_item_per_page()
+
     # use s3fs to mount s3 as fs and load data in xarray
     fs = s3fs.S3FileSystem(anon=False)
 
@@ -44,17 +50,17 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
         # for a given range, time will be the label, and values will be value of 'ref', accross that range
         processed_data = {
             "columns": [data_type],
-            "index": DS['time'].values.tolist(),
-            "data": DS['ref'].sel(range=param).values.tolist() # accross all the date time, get values of data_type, for a given range
-            # "data": json.dumps(DS['ref'].loc["8913001154400":"27323641778400", param].values.tolist())
+            "index": DS['time'].values[start_index: end_index].tolist(),
+            "data": DS['ref'].sel(range=param).values[start_index: end_index].tolist() # accross all the date time, get values of data_type, for a given range
+            # "data": json.dumps(DS['ref'].loc["8913001154400":"27323641778400", param].values[start_index: end_index].tolist())
         }
     elif (coord_type == 'range'):
         # for a given time, range will be the label, and values will be value of 'ref', accross that time
         processed_data = {
             "columns": [data_type],
-            "index": DS['range'].values.tolist(),
-            "data": DS['ref'].sel(time=param).values.tolist() # accross all the range, get values of data_type, for a given date-time
-            # "data": json.dumps(DS['ref'].loc[param, "1011.825":"24995.824"].values.tolist()) 
+            "index": DS['range'].values[start_index: end_index].tolist(),
+            "data": DS['ref'].sel(time=param).values[start_index: end_index].tolist() # accross all the range, get values of data_type, for a given date-time
+            # "data": json.dumps(DS['ref'].loc[param, "1011.825":"24995.824"].values[start_index: end_index].tolist())
         }
     # return the processed data for render, in JSON api specification format.
     return json.dumps(processed_data)

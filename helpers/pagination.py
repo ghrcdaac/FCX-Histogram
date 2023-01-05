@@ -1,7 +1,7 @@
 import math
 
 class Pagination:
-  def __init__(self, page = 1, size = 20):
+  def __init__(self, page = 1, size = 20, total_data=None):
     """
     Args:
         page (int, optional): page number. Defaults to 1.
@@ -9,6 +9,7 @@ class Pagination:
     """
     self.itemPerPage = size
     self.page = page
+    self.total_data = total_data
   
   def get_offset(self):
     """returns the index of required data
@@ -17,6 +18,10 @@ class Pagination:
         number: the index of required data
     """
     return (self.page - 1) * self.itemPerPage
+
+  def get_offset_end(self):
+    # check if page meets end, and return the end offset
+    pass
 
   def get_item_per_page(self):
     """returns the no of data items/rows per page

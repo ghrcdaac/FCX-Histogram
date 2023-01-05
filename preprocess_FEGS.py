@@ -1,6 +1,7 @@
 import pandas as pd
+from .helpers.pagination import Pagination
 
-def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", coord_type="FlashID", data_type="peak"):
+def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", coord_type="FlashID", data_type="peak", pageno=None, pagesize=None):
     request_columns = [coord_type, data_type]
 
     # fetch the data
@@ -10,8 +11,13 @@ def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", coord_type="FlashID",
     if not validate(request_columns):
         return False
     
+    # page to index conversion
+    pg = Pagination(pageno, pagesize)
+    start_index = pg.get_offset()
+    end_index = start_index + pg.get_item_per_page()
+
     # if okay, proceed to the necessary data
-    DF = pd.read_csv(s3path, sep=",", index_col=coord_type, usecols=request_columns)
+    DF = pd.read_csv(s3path, sep=",", index_col=coord_type, usecols=request_columns, skiprows=start_index, nrows=end_index)
 
     filtered = DF[DF[data_type].notnull()]
 

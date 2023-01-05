@@ -109,7 +109,7 @@ def col_request_handler(filename, instrument_type, coord_type):
                 'data' : preprocessed_data
             }
 
-def data_request_handler(filename, instrument_type, coord_type, data_type, params, pageno, pagesize):
+def data_request_handler(filename, instrument_type, coord_type, data_type, params, pageno=1, pagesize=50):
     """
     This function handles the request for the 2D data, for histogram plots
 

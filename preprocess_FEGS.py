@@ -1,7 +1,7 @@
 import pandas as pd
 from .helpers.pagination import Pagination
 
-def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", coord_type="FlashID", data_type="peak", pageno=None, pagesize=None):
+def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", coord_type="FlashID", data_type="peak", pageno=1, pagesize=50):
     request_columns = [coord_type, data_type]
 
     # fetch the data

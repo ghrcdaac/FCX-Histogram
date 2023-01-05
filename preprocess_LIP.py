@@ -1,9 +1,10 @@
 import pandas as pd
+from .helpers.pagination import Pagination
 
 # Available columns for LIP
 LIP_columns = ('Time', 'Ex', 'Ey', 'Ez', 'Eq', 'Lat', 'Lon', 'Alt', 'Roll', 'Pitch', 'Heading')
 
-def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='Eq'):
+def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='Eq', pageno=1, pagesize=50):
     request_columns=[coord_type, data_type]
 
     # fetch the data
@@ -12,9 +13,14 @@ def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='E
     # validate
     if not validate(request_columns):
         return False
+
+    # page to index conversion
+    pg = Pagination(pageno, pagesize)
+    start_index = pg.get_offset()
+    end_index = start_index + pg.get_item_per_page()
     
     # if okay, proceed to the necessary data
-    DF = pd.read_csv(s3path, sep=", ", names=LIP_columns, index_col=coord_type, usecols=request_columns, engine='python')
+    DF = pd.read_csv(s3path, sep=", ", names=LIP_columns, index_col=coord_type, usecols=request_columns, engine='python', skiprows=start_index, nrows=end_index)
     # print(DF.describe)
     
     # Filter NaN datas

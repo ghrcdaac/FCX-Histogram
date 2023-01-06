@@ -1,4 +1,7 @@
+import numpy as np
 import pandas as pd
+import json
+
 from helpers.pagination import Pagination
 
 # Available columns for LIP
@@ -14,20 +17,29 @@ def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='E
     if not validate(request_columns):
         return False
 
-    # page to index conversion
-    pg = Pagination(pageno, pagesize)
-    start_index = pg.get_offset()
-    end_index = start_index + pg.get_item_per_page()
-    
+    # TODO: explore on skiprows and nrows. For now, they donot work with usecols and index_cols set.
+    # Also, the total number of data is to be known, for pagination to work. So, skiprows and nrows is skipped for now.
+    # DF = pd.read_csv(s3path, sep=", ", names=LIP_columns, index_col=coord_type, usecols=request_columns, engine='python', skiprows=start_index, nrows=end_index)
+
     # if okay, proceed to the necessary data
-    DF = pd.read_csv(s3path, sep=", ", names=LIP_columns, index_col=coord_type, usecols=request_columns, engine='python', skiprows=start_index, nrows=end_index)
+    DF = pd.read_csv(s3path, sep=", ", names=LIP_columns, index_col=coord_type, usecols=request_columns, engine='python')
     # print(DF.describe)
     
     # Filter NaN datas
     filtered = DF[DF[data_type].notnull()]
 
+    # page to index conversion
+    total_data = filtered.shape[0]
+    pg = Pagination(pageno, pagesize, total_data)
+    start_index = pg.get_offset()
+    end_index = pg.get_offset_end()
+    # end_index = start_index + pg.get_item_per_page() #Although this is sufficient as, nrows can be greater than the available rows. so end_index handling (get_offset_end()) not necessary here.
+
     # return the processed data for render in JSON api specification format.
-    return filtered.to_json(orient='split')
+    pre_result = filtered[start_index:end_index].to_json(orient='split')
+    result = json.loads(pre_result)
+    result['data'] = np.array(result['data']).flatten().tolist()
+    return json.dumps(result)
     
 # helper functions
 

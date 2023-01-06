@@ -33,11 +33,6 @@ def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Secon
     # validate
     if not validate(request_columns):
         return False
-    
-    # page to index conversion
-    pg = Pagination(pageno, pagesize)
-    start_index = pg.get_offset()
-    end_index = start_index + pg.get_item_per_page()
 
     # use s3fs to mount s3 as fs and load data in xarray
     fs = s3fs.S3FileSystem(anon=False)
@@ -47,6 +42,12 @@ def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Secon
     with fs.open(s3path) as cplfile:
         with h5py.File(cplfile, 'r') as DG: # DataGroup
             ATB_X_ds = DG[data_type] # ds: dataset
+            total_data = ATB_X_ds.shape[0]
+            # page to index conversion
+            pg = Pagination(pageno, pagesize, total_data)
+            start_index = pg.get_offset()
+            end_index = pg.get_offset_end()
+
             # ATB_X = ATB_X_ds[0:ATB_X_ds.shape[0]] # slicing to get all the data
             ATB_X = ATB_X_ds[start_index:end_index] # slicing to get the data TODO: its a 2d data with shape(x,900). know which data is necessary
             processed_data = {

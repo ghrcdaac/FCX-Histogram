@@ -29,11 +29,6 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
     # validate
     if not validate(request_columns):
         return False
-    
-    # page to index conversion
-    pg = Pagination(pageno, pagesize)
-    start_index = pg.get_offset()
-    end_index = start_index + pg.get_item_per_page()
 
     # use s3fs to mount s3 as fs and load data in xarray
     fs = s3fs.S3FileSystem(anon=False)
@@ -48,6 +43,13 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
     processed_data = {} # format in the form of split oriented json of pandas.
     if (coord_type == 'time'):
         # for a given range, time will be the label, and values will be value of 'ref', accross that range
+
+        # page to index conversion
+        total_data = DS.dims['time']
+        pg = Pagination(pageno, pagesize, total_data)
+        start_index = pg.get_offset()
+        end_index = pg.get_offset_end()
+
         processed_data = {
             "columns": [data_type],
             "index": DS['time'].values[start_index: end_index].tolist(),
@@ -56,6 +58,13 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
         }
     elif (coord_type == 'range'):
         # for a given time, range will be the label, and values will be value of 'ref', accross that time
+
+        # page to index conversion
+        total_data = DS.dims['range']
+        pg = Pagination(pageno, pagesize, total_data)
+        start_index = pg.get_offset()
+        end_index = pg.get_offset_end()
+
         processed_data = {
             "columns": [data_type],
             "index": DS['range'].values[start_index: end_index].tolist(),

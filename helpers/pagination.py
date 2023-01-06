@@ -1,7 +1,7 @@
 import math
 
 class Pagination:
-  def __init__(self, page = 1, size = 20, total_data=None):
+  def __init__(self, page = 1, size = 20, totalData=None):
     """
     Args:
         page (int, optional): page number. Defaults to 1.
@@ -9,10 +9,10 @@ class Pagination:
     """
     self.itemPerPage = size
     self.page = page
-    self.total_data = total_data
+    self.totalData = totalData
   
   def get_offset(self):
-    """returns the index of required data
+    """returns the start index (offset) of required data
 
     Returns:
         number: the index of required data
@@ -20,8 +20,19 @@ class Pagination:
     return (self.page - 1) * self.itemPerPage
 
   def get_offset_end(self):
-    # check if page meets end, and return the end offset
-    pass
+    """
+      based on the page number given, the data content per page and total no of data
+      in the constructor, return the end index (offset) of the required data
+    """
+    startOffsetIndex = (self.page - 1) * self.itemPerPage
+    # handle if the requested page is the end page. i.e. end index is start offset index + rem data.
+    lastPage = math.ceil(self.totalData / self.itemPerPage)
+    if(self.page == lastPage):
+      # calculate the remaining items in last page.
+      remItems = self.totalData % self.itemPerPage
+      # add it to the start offset index of this last page.
+      return startOffsetIndex + remItems
+    return startOffsetIndex + self.itemPerPage
 
   def get_item_per_page(self):
     """returns the no of data items/rows per page
@@ -31,7 +42,7 @@ class Pagination:
     """
     return self.itemPerPage
 
-  def get_page_nos(self, totalData):
+  def get_page_nos(self):
     """
       When supplied the total available data, returns all information related to pages,
       according to the page size and current page number.
@@ -48,7 +59,7 @@ class Pagination:
                    previous (number): the previous page number
     """
     # necessary with page and page size convention
-    totalPages = math.ceil(totalData / self.itemPerPage)
+    totalPages = math.ceil(self.totalData / self.itemPerPage)
     first = 1
     last = totalPages
     next = self.page + 1 if self.page < totalPages else 1

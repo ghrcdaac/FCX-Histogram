@@ -53,8 +53,9 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
         processed_data = {
             "columns": [data_type],
             "index": DS['time'].values[start_index: end_index].tolist(),
-            "data": DS['ref'].sel(range=param).values[start_index: end_index].tolist() # accross all the date time, get values of data_type, for a given range
+            "data": DS['ref'].sel(range=param).values[start_index: end_index].tolist(), # accross all the date time, get values of data_type, for a given range
             # "data": json.dumps(DS['ref'].loc["8913001154400":"27323641778400", param].values[start_index: end_index].tolist())
+            "pagemeta": pg.get_page_nos()
         }
     elif (coord_type == 'range'):
         # for a given time, range will be the label, and values will be value of 'ref', accross that time
@@ -68,8 +69,9 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
         processed_data = {
             "columns": [data_type],
             "index": DS['range'].values[start_index: end_index].tolist(),
-            "data": DS['ref'].sel(time=param).values[start_index: end_index].tolist() # accross all the range, get values of data_type, for a given date-time
+            "data": DS['ref'].sel(time=param).values[start_index: end_index].tolist(), # accross all the range, get values of data_type, for a given date-time
             # "data": json.dumps(DS['ref'].loc[param, "1011.825":"24995.824"].values[start_index: end_index].tolist())
+            "pagemeta": pg.get_page_nos()
         }
     # return the processed data for render, in JSON api specification format.
     return json.dumps(processed_data)

@@ -55,7 +55,8 @@ def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Secon
                 # "index": list(range(0, ATB_X_ds.shape[1])),
                 "index": list(range(start_index, end_index)),
                 # for a specific second, get all the ATB data
-                "data": ATB_X[params].tolist() # accross a time (sec) received in param, get all the values of the asked data_type
+                "data": ATB_X[params].tolist(), # accross a time (sec) received in param, get all the values of the asked data_type
+                "pagemeta": pg.get_page_nos()
             }
 
     # return the processed data for render, in JSON api specification format.

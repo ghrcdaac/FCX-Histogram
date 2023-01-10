@@ -10,7 +10,7 @@ from preprocess_crs_coord_vals import start as getCRSCoords
 
 # def lambda_handler(event, context):
 def lambda_handler():
-    mock = '{ "data": { "type": "data_pre_process_request", "attributes": { "instrument_type" : "FEGS", "datetime" : "2017-03-21", "coord_type" : "FlashID", "data_type" : "peak", "params" : "None", "pageno" : 1, "pagesize" : 20 } } }'    # body = json.loads(event["body"]) #dictonary
+    mock = '{ "data": { "type": "data_pre_process_request", "attributes": { "instrument_type" : "FEGS", "datetime" : "2017-03-21", "coord_type" : "FlashID", "data_type" : "peak", "params" : "None", "pageno" : "1", "pagesize" : "20" } } }'    # body = json.loads(event["body"]) #dictonary
     body = json.loads(mock) #dictonary
     payload = {}
 
@@ -63,7 +63,7 @@ def lambda_handler():
     serialized_response = DataPreprocessingSerializerSchema().dumps(response_body) #serialize
     # SERIALIZE DATA END
 
-    return {
+    result = {
         'statusCode': 200,
         'headers': {
             'Access-Control-Allow-Headers': 'Content-Type',
@@ -72,6 +72,8 @@ def lambda_handler():
         },
         'body': serialized_response
     }
+    print("res=>", result)
+    return result
 
 ## REQUEST HANDLERS START
 

@@ -8,9 +8,9 @@ class Pagination:
         size (int, optional): size of data rows per page. Defaults to 20.
         total_data (int): total no of rows in the data, that needs to be paginated
     """
-    self.itemPerPage = size
-    self.page = page
-    self.totalData = total_data
+    self.itemPerPage = int(size)
+    self.page = int(page)
+    self.totalData = int(total_data)
   
   def get_offset(self):
     """returns the start index (offset) of required data

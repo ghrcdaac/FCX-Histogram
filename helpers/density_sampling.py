@@ -33,6 +33,5 @@ class DensitySampling:
         
         #  using the density value and total length of input data, find the skip rate.
         skip_rate = math.floor(np_data.size * self.density)
-        print(">>>>>>>", skip_rate)
         return np_data[::skip_rate].tolist()
     

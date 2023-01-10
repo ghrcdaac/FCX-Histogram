@@ -2,6 +2,7 @@ import numpy as np
 import s3fs
 import h5py
 from helpers.pagination import Pagination
+from helpers.density_sampling import sample_data
 
 # Available columns for FEGS
 CPL_columns = ('ATB_1064', 'ATB_1064_PERP', 'ATB_355', 'ATB_532', 'Bin_Alt', 'Bin_Width', 'Cali_1064',
@@ -55,7 +56,7 @@ def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Secon
                 # "index": list(range(0, ATB_X_ds.shape[1])),
                 "index": list(range(start_index, end_index)),
                 # for a specific second, get all the ATB data
-                "data": ATB_X[params].tolist(), # accross a time (sec) received in param, get all the values of the asked data_type
+                "data": sample_data(ATB_X[params].tolist()), # accross a time (sec) received in param, get all the values of the asked data_type
                 "pagemeta": pg.get_page_nos()
             }
 

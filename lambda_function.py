@@ -1,15 +1,17 @@
 import json
 import boto3
 from APILayer.SchemasJsonApiStandard.datapreprocess import DataPreprocessingDeserializerSchema, DataPreprocessingSerializerSchema
-from .preprocess_FEGS import start as startFEGS
-from .preprocess_CRS import start as startCRS
-from .preprocess_CPL import start as startCPL
-from .preprocess_LIP import start as startLIP
-from .preprocess_cpl_coord_vals import start as getCPLCoords
-from .preprocess_crs_coord_vals import start as getCRSCoords
+from preprocess_FEGS import start as startFEGS
+from preprocess_CRS import start as startCRS
+from preprocess_CPL import start as startCPL
+from preprocess_LIP import start as startLIP
+from preprocess_cpl_coord_vals import start as getCPLCoords
+from preprocess_crs_coord_vals import start as getCRSCoords
 
-def lambda_handler(event, context):
-    body = json.loads(event["body"]) #dictonary
+# def lambda_handler(event, context):
+def lambda_handler():
+    mock = '{ "data": { "type": "data_pre_process_request", "attributes": { "instrument_type" : "FEGS", "datetime" : "2017-03-21", "coord_type" : "FlashID", "data_type" : "peak", "params" : "None", "pageno" : 1, "pagesize" : 20 } } }'    # body = json.loads(event["body"]) #dictonary
+    body = json.loads(mock) #dictonary
     payload = {}
 
     # prepare the data required to call the instrument preprocessors
@@ -30,21 +32,26 @@ def lambda_handler(event, context):
     payload = DataPreprocessingDeserializerSchema().load(body) #deserilalize
     # DESERIALIZE DATA END
 
-    instrument_type = payload['instrument_type'], datetime = payload['datetime'], coord_type = payload['coord_type'],
-    data_type = payload['data_type'], params = payload['params'], pageno = params['pageno'], pagesize = params['pagesize']
+    instrument_type = payload['instrument_type']
+    datetime = payload['datetime']
+    coord_type = payload['coord_type']
+    data_type = payload['data_type']
+    params = payload['params']
+    pageno = payload['pageno']
+    pagesize = payload['pagesize']
 
     # validate if data corresponding to datetime and instrument type is available.
     filename = get_filename(instrument_type, datetime)
-    if(not validate_filename(instrument_type, filename)):
-        return {
-            'statusCode': 400,
-            'headers': {
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST,GET'
-            },
-            'body': 'File for given instrument in the given date is not available.'
-        }
+    # if(not validate_filename(instrument_type, filename)):
+    #     return {
+    #         'statusCode': 400,
+    #         'headers': {
+    #             'Access-Control-Allow-Headers': 'Content-Type',
+    #             'Access-Control-Allow-Origin': '*',
+    #             'Access-Control-Allow-Methods': 'POST,GET'
+    #         },
+    #         'body': 'File for given instrument in the given date is not available.'
+    #     }
 
     # if data_type is not provided in request, then the request is for coord values only.
     if (not data_type):
@@ -234,7 +241,7 @@ def validate_filename(instrument_type, filename):
         return True
     except:
         # if file is not found
-        print(f'Previous backup file with name "{filename}" doesnot exists.\n')
+        print(f'File with name "{filename}" doesnot exists.\n')
         return False
 
 def get_file_path(instrument_type, filename):
@@ -249,8 +256,9 @@ def get_file_path(instrument_type, filename):
     if (instrument_type == "CPL"):
         path_to_file = "CPL/data/L1B"
 
-    path_to_file="CPL/data/L1B"
     # path_to_file = os.environ.get('PATH_TO_FEGS')
     return f"s3://{bucket_src}/{path_to_file}/{filename}"
 
 ## FILE VALIDATION END
+
+lambda_handler()

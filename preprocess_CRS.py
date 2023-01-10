@@ -75,8 +75,8 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
             "pagemeta": pg.get_page_nos()
         }
     # return the processed data for render, in JSON api specification format.
-    return processed_data
-    
+    return json.dumps(processed_data)
+
 # helper functions
 
 def get_file_path(filename):

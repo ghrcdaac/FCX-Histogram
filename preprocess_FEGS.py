@@ -3,6 +3,7 @@ import pandas as pd
 import json
 
 from helpers.pagination import Pagination
+from helpers.density_sampling import sample_data
 
 def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", coord_type="FlashID", data_type="peak", pageno=1, pagesize=50):
     request_columns = [coord_type, data_type]
@@ -33,7 +34,8 @@ def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", coord_type="FlashID",
     # return the processed data for render in JSON api specification format.
     pre_result = filtered[start_index:end_index].to_json(orient='split')
     result = json.loads(pre_result)
-    result['data'] = np.array(result['data']).flatten().tolist()
+    result['data'] = sample_data(np.array(result['data']).flatten().tolist())
+    result['index'] = sample_data(result['index'])
     return json.dumps(result)
 
 # helper functions

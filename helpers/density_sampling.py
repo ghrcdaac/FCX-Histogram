@@ -19,5 +19,5 @@ def sample_data(data):
         data (array): The sampled data set 
     """
     np_data = np.array(data)    
-    return np_data[::5]
+    return np_data[::5].tolist()
     

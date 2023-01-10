@@ -58,7 +58,7 @@ def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Secon
                 # "index": list(range(0, ATB_X_ds.shape[1])),
                 "index": dsamp.sample_data(list(range(start_index, end_index))),
                 # for a specific second, get all the ATB data
-                "data": dsamp.sample_data(ATB_X[params].tolist()), # accross a time (sec) received in param, get all the values of the asked data_type
+                "data": dsamp.sample_data(ATB_X[int(params)].tolist()), # accross a time (sec) received in param, get all the values of the asked data_type
                 "pagemeta": pg.get_page_nos()
             }
 

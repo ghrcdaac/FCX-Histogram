@@ -5,14 +5,13 @@ import s3fs
 import json
 from helpers.pagination import Pagination
 from helpers.density_sampling import DensitySampling
-dsamp = DensitySampling(.05)
 
 # Available columns for FEGS
 CRS_columns = ('time', 'gatesp', 'missing', 'range', 'incid', 'lat', 'lon',
                 'roll', 'pitch', 'track', 'height', 'head', 'evel', 'nvel',
                 'wvel', 'vacft', 'pwr', 'ref', 'dop', 'frequency')
 
-def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type='ref', param="1011.825", pageno=1, pagesize=50):
+def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type='ref', param="1011.825", pageno=1, pagesize=50, density=0.05):
     """
     Description
 
@@ -24,6 +23,8 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
     Returns:
         processed_data: json with data and their coordinate labels (index)
     """
+    dsamp = DensitySampling(density)
+
     request_columns = [data_type, 'time', 'range']
     # fetch the data
     s3path=get_file_path(filename)

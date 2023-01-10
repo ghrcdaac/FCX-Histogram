@@ -3,7 +3,6 @@ import s3fs
 import h5py
 from helpers.pagination import Pagination
 from helpers.density_sampling import DensitySampling
-dsamp = DensitySampling(.05)
 
 # Available columns for FEGS
 CPL_columns = ('ATB_1064', 'ATB_1064_PERP', 'ATB_355', 'ATB_532', 'Bin_Alt', 'Bin_Width', 'Cali_1064',
@@ -13,7 +12,7 @@ CPL_columns = ('ATB_1064', 'ATB_1064_PERP', 'ATB_355', 'ATB_532', 'Bin_Alt', 'Bi
                 'Plane_Pitch', 'Plane_Roll', 'Pressure', 'Project', 'RH', 'Saturate', 'Second', 'Solar_Azimuth_Angle',
                 'Solar_Elevation_Angle', 'Start_JDay', 'Temperature')
 
-def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Second", data_type="ATB_1064", params=0, pageno=1, pagesize=50):
+def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Second", data_type="ATB_1064", params=0, pageno=1, pagesize=50, density=0.05):
     """
     Description
 
@@ -28,6 +27,8 @@ def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Secon
     Returns:
         processed_data: json with data and their coordinate labels (index)
     """
+    dsamp = DensitySampling(density)
+
     request_columns=[coord_type, data_type]
     # fetch the data
     s3path=get_file_path(filename)

@@ -15,7 +15,7 @@ class DensitySampling:
                 If 1, samples all the data.
                 If .5, samples 50% of the data.
         """
-        self.density = density
+        self.density = float(density)
         
     def sample_data(self, data):
         """

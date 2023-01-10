@@ -39,6 +39,7 @@ def lambda_handler():
     params = payload['params']
     pageno = payload['pageno']
     pagesize = payload['pagesize']
+    density = payload['density']
 
     # validate if data corresponding to datetime and instrument type is available.
     filename = get_filename(instrument_type, datetime)
@@ -57,7 +58,7 @@ def lambda_handler():
     if (not data_type):
         response_body = col_request_handler(filename, instrument_type, coord_type)
     else:
-        response_body = data_request_handler(filename, instrument_type, coord_type, data_type, params, pageno, pagesize)
+        response_body = data_request_handler(filename, instrument_type, coord_type, data_type, params, pageno, pagesize, density)
 
     # SERIALIZE DATA START
     serialized_response = DataPreprocessingSerializerSchema().dumps(response_body) #serialize
@@ -116,7 +117,7 @@ def col_request_handler(filename, instrument_type, coord_type):
                 'data' : preprocessed_data
             }
 
-def data_request_handler(filename, instrument_type, coord_type, data_type, params, pageno=1, pagesize=50):
+def data_request_handler(filename, instrument_type, coord_type, data_type, params, pageno=1, pagesize=50, density=0.05):
     """
     This function handles the request for the 2D data, for histogram plots
 
@@ -150,7 +151,7 @@ def data_request_handler(filename, instrument_type, coord_type, data_type, param
     selected_preporcessing = preprocessing_instruments.get(instrument_type, False)
     preprocessed_data = {}
     if (selected_preporcessing):
-        preprocessed_data = selected_preporcessing(filename, coord_type, data_type, params, pageno, pagesize)
+        preprocessed_data = selected_preporcessing(filename, coord_type, data_type, params, pageno, pagesize, density)
 
     if (not preprocessed_data):
         return {

@@ -20,6 +20,7 @@ class DataPreprocessingDeserializerSchema(Schema):
     params = fields.Str(required=True)
     pageno = fields.Str(required=True)
     pagesize = fields.Str(required=True)
+    density = fields.Str(required=True)
 
     class Meta:
         type_ = "data_pre_process_request"

@@ -4,12 +4,13 @@ import json
 
 from helpers.pagination import Pagination
 from helpers.density_sampling import DensitySampling
-dsamp = DensitySampling(.05)
 
 # Available columns for LIP
 LIP_columns = ('Time', 'Ex', 'Ey', 'Ez', 'Eq', 'Lat', 'Lon', 'Alt', 'Roll', 'Pitch', 'Heading')
 
-def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='Eq', pageno=1, pagesize=50):
+def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='Eq', params=None, pageno=1, pagesize=50, density=0.05):
+    dsamp = DensitySampling(density)
+
     request_columns=[coord_type, data_type]
 
     # fetch the data

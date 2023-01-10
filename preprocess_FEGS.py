@@ -4,9 +4,10 @@ import json
 
 from helpers.pagination import Pagination
 from helpers.density_sampling import DensitySampling
-dsamp = DensitySampling(.05)
 
-def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", coord_type="FlashID", data_type="peak", params=None, pageno=1, pagesize=50):
+def start(filename="goesr_plt_FEGS_20170321_Flash_v2.txt", coord_type="FlashID", data_type="peak", params=None, pageno=1, pagesize=50, density=0.05):
+    dsamp = DensitySampling(density)
+
     request_columns = [coord_type, data_type]
 
     # fetch the data

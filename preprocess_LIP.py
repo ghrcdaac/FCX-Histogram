@@ -3,7 +3,8 @@ import pandas as pd
 import json
 
 from helpers.pagination import Pagination
-from helpers.density_sampling import sample_data
+from helpers.density_sampling import DensitySampling
+dsamp = DensitySampling(.05)
 
 # Available columns for LIP
 LIP_columns = ('Time', 'Ex', 'Ey', 'Ez', 'Eq', 'Lat', 'Lon', 'Alt', 'Roll', 'Pitch', 'Heading')
@@ -39,8 +40,8 @@ def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='E
     # return the processed data for render in JSON api specification format.
     pre_result = filtered[start_index:end_index].to_json(orient='split')
     result = json.loads(pre_result)
-    result['data'] = sample_data(np.array(result['data']).flatten().tolist())
-    result['index'] = sample_data(result['index'])
+    result['data'] = dsamp.sample_data(np.array(result['data']).flatten().tolist())
+    result['index'] = dsamp.sample_data(result['index'])
     return json.dumps(result)
     
 # helper functions

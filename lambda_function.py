@@ -43,16 +43,16 @@ def lambda_handler():
 
     # validate if data corresponding to datetime and instrument type is available.
     filename = get_filename(instrument_type, datetime)
-    # if(not validate_filename(instrument_type, filename)):
-    #     return {
-    #         'statusCode': 400,
-    #         'headers': {
-    #             'Access-Control-Allow-Headers': 'Content-Type',
-    #             'Access-Control-Allow-Origin': '*',
-    #             'Access-Control-Allow-Methods': 'POST,GET'
-    #         },
-    #         'body': 'File for given instrument in the given date is not available.'
-    #     }
+    if(not validate_filename(instrument_type, filename)):
+        return {
+            'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST,GET'
+            },
+            'body': 'File for given instrument in the given date is not available.'
+        }
 
     # if data_type is not provided in request, then the request is for coord values only.
     if (not data_type):
@@ -260,7 +260,7 @@ def get_file_path(instrument_type, filename):
         path_to_file = "CPL/data/L1B"
 
     # path_to_file = os.environ.get('PATH_TO_FEGS')
-    return f"s3://{bucket_src}/{path_to_file}/{filename}"
+    return f"{path_to_file}/{filename}"
 
 ## FILE VALIDATION END
 

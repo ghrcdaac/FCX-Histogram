@@ -236,10 +236,10 @@ def validate_filename(instrument_type, filename):
     bucket_src = "fcx-raw-data-temp"
     # bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
     s3_client = boto3.client('s3')
-    file_src = get_file_path(instrument_type, filename)
+    file_dir = get_file_path(instrument_type, filename)
     try:
         # if File_bck is Found
-        s3_client.head_object(Bucket=bucket_src, Key=f'{file_src}')
+        s3_client.head_object(Bucket=bucket_src, Key=f'{file_dir}')
         print(f'File with "{filename}" name found.')
         return True
     except:

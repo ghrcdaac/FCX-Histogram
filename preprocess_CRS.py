@@ -4,6 +4,7 @@ import pandas as pd
 import s3fs
 import json
 from helpers.pagination import Pagination
+from helpers.density_sampling import sample_data
 
 # Available columns for FEGS
 CRS_columns = ('time', 'gatesp', 'missing', 'range', 'incid', 'lat', 'lon',
@@ -52,8 +53,8 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
 
         processed_data = {
             "columns": [data_type],
-            "index": DS['time'].values[start_index: end_index].tolist(),
-            "data": DS['ref'].sel(range=param).values[start_index: end_index].tolist(), # accross all the date time, get values of data_type, for a given range
+            "index": sample_data(DS['time'].values[start_index: end_index].tolist()),
+            "data": sample_data(DS['ref'].sel(range=param).values[start_index: end_index].tolist()), # accross all the date time, get values of data_type, for a given range
             # "data": json.dumps(DS['ref'].loc["8913001154400":"27323641778400", param].values[start_index: end_index].tolist())
             "pagemeta": pg.get_page_nos()
         }
@@ -68,13 +69,13 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='time', data_type=
 
         processed_data = {
             "columns": [data_type],
-            "index": DS['range'].values[start_index: end_index].tolist(),
-            "data": DS['ref'].sel(time=param).values[start_index: end_index].tolist(), # accross all the range, get values of data_type, for a given date-time
+            "index": sample_data(DS['range'].values[start_index: end_index].tolist()),
+            "data": sample_data(DS['ref'].sel(time=param).values[start_index: end_index].tolist()), # accross all the range, get values of data_type, for a given date-time
             # "data": json.dumps(DS['ref'].loc[param, "1011.825":"24995.824"].values[start_index: end_index].tolist())
             "pagemeta": pg.get_page_nos()
         }
     # return the processed data for render, in JSON api specification format.
-    return json.dumps(processed_data)
+    return processed_data
     
 # helper functions
 

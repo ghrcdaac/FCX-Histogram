@@ -8,10 +8,11 @@ from preprocess_LIP import start as startLIP
 from preprocess_cpl_coord_vals import start as getCPLCoords
 from preprocess_crs_coord_vals import start as getCRSCoords
 
-# def lambda_handler(event, context):
-def lambda_handler():
-    mock = '{ "data": { "type": "data_pre_process_request", "attributes": { "instrument_type" : "FEGS", "datetime" : "2017-03-21", "coord_type" : "FlashID", "data_type" : "peak", "params" : "None", "pageno" : "1", "pagesize" : "20", "density": "0.05" } } }'    # body = json.loads(event["body"]) #dictonary
-    body = json.loads(mock) #dictonary
+def lambda_handler(event, context):
+    body = json.loads(event["body"]) #dictonary
+    if (not body):
+        mock = '{ "data": { "type": "data_pre_process_request", "attributes": { "instrument_type" : "FEGS", "datetime" : "2017-03-21", "coord_type" : "FlashID", "data_type" : "peak", "params" : "None", "pageno" : "1", "pagesize" : "20", "density": "0.05" } } }'    # body = json.loads(event["body"]) #dictonary
+        body = json.loads(mock)
     payload = {}
 
     # prepare the data required to call the instrument preprocessors
@@ -263,5 +264,3 @@ def get_file_path(instrument_type, filename):
     return f"{path_to_file}/{filename}"
 
 ## FILE VALIDATION END
-
-lambda_handler()

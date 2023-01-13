@@ -16,13 +16,49 @@
 				"header": [
 					{
 						"key": "x-api-key",
-						"value": "",
+						"value": "tUS7oors8qawUhT7c8QBn5OXLzH7TPgs6pmiuK2t",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"data\": {\r\n        \"type\": \"data_pre_process_request\",\r\n        \"attributes\": {\r\n            \"instrument_type\" : \"FEGS\",\r\n            \"datetime\" : \"2017-03-21\",\r\n            \"coord_type\" : \"FlashID\",\r\n            \"data_type\" : \"peak\",\r\n            \"params\" : \"None\",\r\n            \"pageno\" : \"1\",\r\n            \"pagesize\" : \"20\",\r\n            \"density\": \"0.05\"\r\n        }\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "https://kz1ey7qvul.execute-api.us-east-1.amazonaws.com/default/sanjog-histogram-preprocessing-fcx-v1",
+					"protocol": "https",
+					"host": [
+						"kz1ey7qvul",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"default",
+						"sanjog-histogram-preprocessing-fcx-v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Histogram Data coordinates AWS Lambda",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "tUS7oors8qawUhT7c8QBn5OXLzH7TPgs6pmiuK2t",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"type\": \"data_pre_process_request\",\r\n        \"attributes\": {\r\n            \"instrument_type\" : \"CPL\",\r\n            \"datetime\" : \"2017-04-27\",\r\n            \"coord_type\" : \"Second\",\r\n            \"data_type\" : \"\",\r\n            \"params\" : \"None\",\r\n            \"pageno\" : \"None\",\r\n            \"pagesize\" : \"None\",\r\n            \"density\": \"None\"\r\n        }\r\n    }\r\n}"
 				},
 				"url": {
 					"raw": "https://kz1ey7qvul.execute-api.us-east-1.amazonaws.com/default/sanjog-histogram-preprocessing-fcx-v1",

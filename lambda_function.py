@@ -249,7 +249,7 @@ def validate_filename(instrument_type, filename):
         return False
 
 def get_file_path(instrument_type, filename):
-    bucket_src = "fcx-raw-data-temp"
+    path_to_file = ""
     # bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
     if (instrument_type == "FEGS"):
         path_to_file = "FEGS/data"

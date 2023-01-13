@@ -1,0 +1,46 @@
+{
+	"info": {
+		"_postman_id": "522a9d48-a8c9-4008-80c8-c0de5f478481",
+		"name": "Histogram preprocessed data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24347847"
+	},
+	"item": [
+		{
+			"name": "Get Histogram Data AWS Lambda",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"type\": \"data_pre_process_request\",\r\n        \"attributes\": {\r\n            \"instrument_type\" : \"FEGS\",\r\n            \"datetime\" : \"2017-03-21\",\r\n            \"coord_type\" : \"FlashID\",\r\n            \"data_type\" : \"peak\",\r\n            \"params\" : \"None\",\r\n            \"pageno\" : \"1\",\r\n            \"pagesize\" : \"20\",\r\n            \"density\": \"0.05\"\r\n        }\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "https://kz1ey7qvul.execute-api.us-east-1.amazonaws.com/default/sanjog-histogram-preprocessing-fcx-v1",
+					"protocol": "https",
+					"host": [
+						"kz1ey7qvul",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"default",
+						"sanjog-histogram-preprocessing-fcx-v1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -44,16 +44,7 @@ def lambda_handler(event, context):
 
     # validate if data corresponding to datetime and instrument type is available.
     filename = get_filename(instrument_type, datetime)
-    if(not validate_filename(instrument_type, filename)):
-        return {
-            'statusCode': 400,
-            'headers': {
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST,GET'
-            },
-            'body': error_formatter('File for given instrument in the given date is not available.')
-        }
+    validate_filename(instrument_type, filename)
 
     # if data_type is not provided in request, then the request is for coord values only.
     if (not data_type):
@@ -244,7 +235,15 @@ def validate_filename(instrument_type, filename):
     except:
         # if file is not found
         print(f'File with name "{filename}" doesnot exists.\n')
-        return False
+        return {
+            'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST,GET'
+            },
+            'body': error_formatter('File for given instrument in the given date is not available.')
+        }
 
 def get_file_path(instrument_type, filename):
     path_to_file = ""

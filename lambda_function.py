@@ -44,7 +44,16 @@ def lambda_handler(event, context):
 
     # validate if data corresponding to datetime and instrument type is available.
     filename = get_filename(instrument_type, datetime)
-    validate_filename(instrument_type, filename)
+    if(not validate_filename(instrument_type, filename)):
+        return {
+            'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST,GET'
+            },
+            'body': error_formatter('File for given instrument in the given date is not available.')
+        }
 
     # if data_type is not provided in request, then the request is for coord values only.
     if (not data_type):
@@ -225,25 +234,16 @@ def filename_cpl(date = '20170427'):
 def validate_filename(instrument_type, filename):
     bucket_src = "fcx-raw-data-temp"
     # bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
-    s3_client = boto3.client('s3')
     file_dir = get_file_path(instrument_type, filename)
-    try:
-        # if File_bck is Found
-        s3_client.head_object(Bucket=bucket_src, Key=f'{file_dir}')
-        print(f'File with "{filename}" name found.')
+
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(bucket_src)
+    key = file_dir
+    objs = list(bucket.objects.filter(Prefix=key))
+    if any([w.key == key for w in objs]):
         return True
-    except:
-        # if file is not found
-        print(f'File with name "{filename}" doesnot exists.\n')
-        return {
-            'statusCode': 400,
-            'headers': {
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST,GET'
-            },
-            'body': error_formatter('File for given instrument in the given date is not available.')
-        }
+    else:
+        return False
 
 def get_file_path(instrument_type, filename):
     path_to_file = ""

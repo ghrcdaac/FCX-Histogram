@@ -2,6 +2,7 @@
 ### It is supposed that the user has some prior knowledge about lambda and docker. User needs to have docker configured on the deployment machine.
 
 1. Deploy the script to ECR using the deploy script. The deploy script takes in `account_id`, `region` and `repository_name` as variables, so set them accordingly. 
+     - In the AWS ECR, create a repository with `repository_name`
      - Then run `bash deploy.sh`
      - This will upload the docker image to the ECR according to the variables set. 
 2. In the aws lamdba console, create a new lambda function (using docker), and select the deployed `repository_name`

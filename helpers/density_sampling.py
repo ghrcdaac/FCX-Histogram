@@ -27,17 +27,15 @@ class DensitySampling:
         """
         np_data = np.array(data)
         total_size = np_data.size
-        gap = 1
-        if (0.8 <= self.density <= 1.0):
-            gap = 1
-        elif (0.5 <= self.density < 0.8):
+        if (0.40 <= self.density < 0.75):
             gap = 2
-        elif (0.3 <= self.density < 0.5):
+        elif (0.20 <= self.density < 0.40):
             gap = math.floor(total_size/3)
-        elif (0.1 <= self.density < 0.3):
+        elif (0.10 <= self.density < 0.20):
             gap = math.floor(total_size/2)
-        else:
+        elif (0 <= self.density < 0.10):
             gap = total_size
+        else:
+            gap = 1
 
         return np_data[::gap].tolist()
-    

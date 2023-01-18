@@ -75,6 +75,10 @@ def lambda_handler(event, context):
         'body': serialized_response
     }
 
+#########################
+#        HELPERS        #
+#########################
+
 ## REQUEST HANDLERS START
 
 def col_request_handler(filename, instrument_type, coord_type):
@@ -265,12 +269,12 @@ def get_file_path(instrument_type, filename):
 ## ERROR FORMATTER START
 
 def error_formatter(error_msg):
-    return {
+    return json.dumps({
         "errors": [
             {
                 "detail": error_msg
             }
         ]
-    }
+    })
 
 ## ERROR FORMATTER END

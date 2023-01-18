@@ -15,9 +15,7 @@ class DensitySampling:
         """
         Samples the data set, by picking the data in equal intervals. 
         Note: density and skip_rate are inversly proportional to each other
-        So, applying -ve linear relation between them, we come with an equation
-        Say, L = length of array, d = density wanted, g = skip_interval(gap)
-        We have, g = (1-L)*d + L
+        Applying skip-gap in a stepwise increment with respect to density 
 
         Args:
             data (array): The data set that is to be sampled

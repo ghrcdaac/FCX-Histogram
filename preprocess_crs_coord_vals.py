@@ -39,7 +39,7 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='range'):
         # if okay, proceed to the necessary data
         DS = xr.open_dataset(crsfile, engine="scipy", drop_variables=nonRequestColumns) # need to install scipy, a xr dependency to open crs file.
         processed_data = {
-            "coordinate_value": list(DS[coord_type].values)
+            "coordinate_value": DS[coord_type].values.tolist()
         }
     # return the processed data for render, in JSON api specification format.
     return json.dumps(processed_data)

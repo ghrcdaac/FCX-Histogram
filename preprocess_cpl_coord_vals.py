@@ -41,7 +41,7 @@ def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Secon
             col_data_ds = DG[coord_type] # ds: dataset
             col_data = col_data_ds[0:col_data_ds.shape[0]] # slicing to get the data
             processed_data = {
-                "coordinate_value": list(col_data),
+                "coordinate_value": col_data.tolist()
             }
 
     # return the processed data for render, in JSON api specification format.

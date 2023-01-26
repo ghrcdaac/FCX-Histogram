@@ -1,4 +1,5 @@
 import numpy as np
+import json
 import s3fs
 import h5py
 
@@ -44,7 +45,7 @@ def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Secon
             }
 
     # return the processed data for render, in JSON api specification format.
-    return processed_data
+    return json.dumps(processed_data)
     
 # helper functions
 

@@ -42,7 +42,7 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='range'):
             "coordinate_value": list(DS[coord_type].values)
         }
     # return the processed data for render, in JSON api specification format.
-    return processed_data
+    return json.dumps(processed_data)
     
 # helper functions
 

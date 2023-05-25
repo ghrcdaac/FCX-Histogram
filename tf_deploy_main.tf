@@ -95,5 +95,133 @@ resource "aws_cloudwatch_log_group" "histogram_tool_preprocessing" {
 
 ## 3. Configure REST API gateway for the lambda.
 
+## REST API GATEWAY
 
-# In the API gateway console, Allow CORS for resource, and re-deploy the API gateway.
+# API Gateway name
+resource "aws_api_gateway_rest_api" "histogram_tool_preprocessing" {
+  name = "fcx-histogram-preprocessing-api"
+}
+
+
+## create resource
+resource "aws_api_gateway_resource" "histogram_tool_preprocessing" {
+  path_part   = aws_lambda_function.histogram_tool_preprocessing.function_name
+  parent_id   = aws_api_gateway_rest_api.histogram_tool_preprocessing.root_resource_id
+  rest_api_id = aws_api_gateway_rest_api.histogram_tool_preprocessing.id
+}
+
+## create method
+resource "aws_api_gateway_method" "histogram_tool_preprocessing" {
+  rest_api_id   = aws_api_gateway_rest_api.histogram_tool_preprocessing.id
+  resource_id   = aws_api_gateway_resource.histogram_tool_preprocessing.id
+  http_method   = "POST"
+  authorization = "NONE"
+  api_key_required = true
+}
+
+## allow CORS on preflight
+module "subset_trigger_api_cors" {
+  source = "squidfunk/api-gateway-enable-cors/aws"
+  version = "0.3.3"
+
+  api_id          = aws_api_gateway_rest_api.histogram_tool_preprocessing.id
+  api_resource_id = aws_api_gateway_resource.histogram_tool_preprocessing.id
+
+  depends_on = [ aws_api_gateway_rest_api.histogram_tool_preprocessing, aws_api_gateway_resource.histogram_tool_preprocessing ]
+}
+
+
+## INTEGRATION OF GATEWAY AND LAMBDA TRIGGER
+resource "aws_api_gateway_integration" "histogram_tool_preprocessing" {
+  rest_api_id             = aws_api_gateway_rest_api.histogram_tool_preprocessing.id
+  resource_id             = aws_api_gateway_resource.histogram_tool_preprocessing.id
+  http_method             = aws_api_gateway_method.histogram_tool_preprocessing.http_method
+  integration_http_method = aws_api_gateway_method.histogram_tool_preprocessing.http_method
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.histogram_tool_preprocessing.invoke_arn
+}
+
+
+## PERMISSIONS to trigger lamba from api gateway
+resource "aws_lambda_permission" "histogram_tool_preprocessing" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.histogram_tool_preprocessing.function_name
+  principal     = "apigateway.amazonaws.com"
+  # More: http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html
+  source_arn = "arn:aws:execute-api:${var.aws_region}:${var.accountId}:${aws_api_gateway_rest_api.histogram_tool_preprocessing.id}/*/${aws_api_gateway_method.histogram_tool_preprocessing.http_method}${aws_api_gateway_resource.histogram_tool_preprocessing.path}"
+}
+
+
+## SET RESPONSE HANDLERS FOR API-GATEWAY (NOT NEEDED FOR AWS PROXY INTEGRATION) HANDLE CORS HEADERS FROM LAMBDA RESPONSE ITSELF
+
+
+## Create deployment for histogram_tool_preprocessing
+resource "aws_api_gateway_deployment" "histogram_tool_preprocessing" {
+  rest_api_id = aws_api_gateway_rest_api.histogram_tool_preprocessing.id
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.histogram_tool_preprocessing.id,
+      aws_api_gateway_method.histogram_tool_preprocessing.id,
+      aws_api_gateway_integration.histogram_tool_preprocessing.id,
+    ]))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+## create stage for the histogram_tool_preprocessing
+resource "aws_api_gateway_stage" "histogram_tool_preprocessing" {
+  deployment_id = aws_api_gateway_deployment.histogram_tool_preprocessing.id
+  rest_api_id   = aws_api_gateway_rest_api.histogram_tool_preprocessing.id
+  stage_name    = var.stage_name
+  depends_on = [aws_cloudwatch_log_group.histogram_tool_preprocessing_api]
+}
+
+
+
+### to enable api key and its usage plan for histogram_tool_preprocessing
+
+# create api key
+resource "aws_api_gateway_api_key" "histogram_tool_preprocessing_api_key" {
+  name = "histogram_preprocessing_api-key"
+}
+
+# create usage plans
+resource "aws_api_gateway_usage_plan" "histogram_tool_preprocessing_api_usagePlan" {
+  name         = "histogram_preprocessing_api-usagePlan"
+  description  = "Usage plan for the histogram_preprocessing_api key"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.histogram_tool_preprocessing.id
+    stage  = aws_api_gateway_stage.histogram_tool_preprocessing.stage_name
+  }
+}
+
+resource "aws_api_gateway_usage_plan_key" "histogram_usagePlan_with_key" {
+  key_id        = aws_api_gateway_api_key.histogram_tool_preprocessing_api_key.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.histogram_tool_preprocessing_api_usagePlan.id
+}
+
+
+## add and enable cloudwatch logs for subset_trigger_api
+
+resource "aws_cloudwatch_log_group" "histogram_tool_preprocessing_api" {
+  name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.histogram_tool_preprocessing.id}/${var.stage_name}"
+  retention_in_days = 3
+}
+
+resource "aws_api_gateway_method_settings" "histogram_tool_preprocessing_api_method" {
+  rest_api_id = aws_api_gateway_rest_api.histogram_tool_preprocessing.id
+  stage_name  = aws_api_gateway_stage.histogram_tool_preprocessing.stage_name
+  method_path = "*/*"
+
+  settings {
+    metrics_enabled = true
+    logging_level   = "INFO"
+  }
+}

@@ -3,7 +3,7 @@
 # Vars
 account_id="307493436926"
 region="us-east-1"
-repository_name="histogram-preprocessing-sanjog"
+repository_name="fcx-histogram-preprocessing"
 
 #create new ECR repo
 aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${account_id}.dkr.ecr.${region}.amazonaws.com
@@ -12,7 +12,7 @@ aws ecr create-repository --repository-name ${repository_name} --image-scanning-
 # docker build image, tag it and push it to the ECR repo
 docker build -t ${repository_name} .
 docker tag  ${repository_name}:latest ${account_id}.dkr.ecr.${region}.amazonaws.com/${repository_name}:latest
-docker push 
+docker push ${account_id}.dkr.ecr.${region}.amazonaws.com/${repository_name}:latest
 
 # vars needed for terraform:
 echo "ECR DOCKER IMAGE URL:"

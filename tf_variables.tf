@@ -18,7 +18,7 @@ variable "aws_region" {
 
 variable "ecr_name" {
   type    = string
-  default = "histogram-preprocessing-sanjog"
+  default = "fcx-histogram-preprocessing"
 }
 
 variable "accountId" {

@@ -82,6 +82,15 @@ resource "aws_lambda_function" "histogram_tool_preprocessing" {
   }
 }
 
+## 2.3. CREATE CLOUDWATCH LOG GROUP ##
+
+# log lambda
+resource "aws_cloudwatch_log_group" "histogram_tool_preprocessing" {
+  name = "/aws/lambda/${aws_lambda_function.histogram_tool_preprocessing.function_name}"
+
+  retention_in_days = 5
+}
+
 
 
 ## 3. Configure REST API gateway for the lambda.

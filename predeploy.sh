@@ -1,19 +1,19 @@
 #!/bin/bash
 
 # Vars
-account_id="307493436926"
-region="us-east-1"
-repository_name="fcx-histogram-preprocessing"
+# Get using env variables
+TF_VAR_ecr_name="fcx-histogram-preprocessing"
 
 #create new ECR repo
-aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${account_id}.dkr.ecr.${region}.amazonaws.com
-aws ecr create-repository --repository-name ${repository_name} --image-scanning-configuration scanOnPush=true --image-tag-mutability MUTABLE
+aws ecr get-login-password --region ${TF_VAR_aws_region} | docker login --username AWS --password-stdin ${TF_VAR_accountId}.dkr.ecr.${TF_VAR_aws_region}.amazonaws.com
+export AWS_PAGER=""
+aws ecr create-repository --repository-name ${TF_VAR_ecr_name} --image-scanning-configuration scanOnPush=true --image-tag-mutability MUTABLE
 
 # docker build image, tag it and push it to the ECR repo
-docker build -t ${repository_name} .
-docker tag  ${repository_name}:latest ${account_id}.dkr.ecr.${region}.amazonaws.com/${repository_name}:latest
-docker push ${account_id}.dkr.ecr.${region}.amazonaws.com/${repository_name}:latest
+docker build -t ${TF_VAR_ecr_name} .
+docker tag  ${TF_VAR_ecr_name}:latest ${TF_VAR_accountId}.dkr.ecr.${TF_VAR_aws_region}.amazonaws.com/${TF_VAR_ecr_name}:latest
+docker push ${TF_VAR_accountId}.dkr.ecr.${TF_VAR_aws_region}.amazonaws.com/${TF_VAR_ecr_name}:latest
 
 # vars needed for terraform:
 echo "ECR DOCKER IMAGE URL:"
-echo ${account_id}.dkr.ecr.${region}.amazonaws.com/${repository_name}:latest
+echo ${TF_VAR_accountId}.dkr.ecr.${TF_VAR_aws_region}.amazonaws.com/${TF_VAR_ecr_name}:latest

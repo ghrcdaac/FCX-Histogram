@@ -30,7 +30,13 @@ It is supposed that the user has some prior knowledge about lambda and docker.
                - Add cloudwatch logs for the API and Lambda.
                - And add necessary configuration for the lambda execution environment.
 3. Use the `Histogram_preprocessed_data.postman_collection.json` postman collection to test the Lambda.
-4. To remove the Histogram preprocessing Tool, use
+
+After terraform finishes building the Histogram tool infrastructure, it outputs env varaibles that can be used in the frontend.
+
+     - For `<sensitive>` as output value, use `terraform output <key_name>`
+
+### To remove the Histogram preprocessing Tool
+
      - `terraform destroy`
           - removes the Lambda function, API Gateway and permissions.
      - Goto AWS ECR Management console and remove the created ECR.

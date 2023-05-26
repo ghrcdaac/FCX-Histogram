@@ -33,7 +33,7 @@ It is supposed that the user has some prior knowledge about lambda and docker.
 
 After terraform finishes building the Histogram tool infrastructure, it outputs env varaibles that can be used in the frontend.
 
-     - For `<sensitive>` as output value, use `terraform output <key_name>`
+- For `<sensitive>` as output value, use `terraform output <key_name>`
 
 ### To remove the Histogram preprocessing Tool
 

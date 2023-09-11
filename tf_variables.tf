@@ -3,6 +3,7 @@ variable "aws_creds_path" {
   description = "The path to aws credentials file"
 
   type    = string
+  default = "~/.aws/credentials"
 }
 
 variable "aws_region" {
@@ -11,6 +12,14 @@ variable "aws_region" {
   type    = string
 }
 
+## variables for worker lambdas code
+
+variable "SOURCE_BUCKET_NAME" {
+  description = "Bucket with raw data files required for the subset-worker"
+
+  type    = string
+  default = "fcx-raw-data"
+}
 
 ## variables needed for ECR image url
 

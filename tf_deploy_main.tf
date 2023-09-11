@@ -80,6 +80,13 @@ resource "aws_lambda_function" "histogram_tool_preprocessing" {
   ephemeral_storage {
     size = var.lambda_execution_ephimeral_storage
   }
+
+  environment {
+    variables = {
+      BUCKET_AWS_REGION = var.aws_region
+      SOURCE_BUCKET_NAME = var.SOURCE_BUCKET_NAME
+    }
+  }
 }
 
 ## 2.3. CREATE CLOUDWATCH LOG GROUP ##

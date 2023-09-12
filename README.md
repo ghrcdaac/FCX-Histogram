@@ -10,6 +10,7 @@ It is supposed that the user has some prior knowledge about lambda and docker.
 - [Setup AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
   - `aws configure` Preferred. This deployment will assume that aws configure is used.
   - Need ```aws_access_key_id and aws_secret_access_key``` key values; inside `~/.aws/credentials`
+- The aws account should have a existing private `fcx-terraform-backend-states` bucket, for terraform to save state. And it should be accessible by same credentials.
 
 ## Deployement Details
 

@@ -1,4 +1,9 @@
 terraform {
+  backend "s3" {
+    bucket = "fcx-terraform-backend-states"
+    key    = "terraform/states/histogram"
+    region = "us-west-2"
+  }
 
   required_providers {
     aws = {

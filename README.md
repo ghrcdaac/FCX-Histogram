@@ -14,7 +14,9 @@ It is supposed that the user has some prior knowledge about lambda and docker.
 ## Deployement Details
 
 1. Export env variables for keys mentioned in .env.example into shell session.
-     - example: `export TF_VAR_aws_creds_path="xxxxxxx" TF_VAR_aws_region="xxxxxxx" TF_VAR_accountId="xxxxxxx"`
+     - example: `export TF_VAR_aws_region="xxxxxxx" TF_VAR_accountId="xxxxxxx"`
+     - These are optional (has a default value. ref. *_varaiables_*.tf files) `export TF_VAR_SOURCE_BUCKET_NAME=*********`
+     - For more tweaking, ref. `.env.example`
 2. Deploy using `bash deploy.sh`. The bash script does the following things:
      1. Deploy the script to ECR using the predeploy script.
        - `bash predeploy.sh`
@@ -37,6 +39,6 @@ After terraform finishes building the Histogram tool infrastructure, it outputs 
 
 ### To remove the Histogram preprocessing Tool
 
-     - `terraform destroy`
-          - removes the Lambda function, API Gateway and permissions.
-     - Goto AWS ECR Management console and remove the created ECR.
+1. Run `terraform destroy`
+     - removes the Lambda function, API Gateway and permissions.
+2. Goto AWS ECR Management console and remove the created ECR.

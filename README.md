@@ -10,13 +10,14 @@ It is supposed that the user has some prior knowledge about lambda and docker.
 - [Setup AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
   - `aws configure` Preferred. This deployment will assume that aws configure is used.
   - Need ```aws_access_key_id and aws_secret_access_key``` key values; inside `~/.aws/credentials`
-- The aws account should have a existing private `fcx-terraform-backend-states` bucket, for terraform to save state. And it should be accessible by same credentials.
 
 ## Deployement Details
 
 1. Export env variables for keys mentioned in .env.example into shell session.
-     - example: `export TF_VAR_aws_region="xxxxxxx" TF_VAR_accountId="xxxxxxx"`
-     - These are optional (has a default value. ref. *_varaiables_*.tf files) `export TF_VAR_SOURCE_BUCKET_NAME=*********`
+     - Minimum export:
+          - `export TF_VAR_aws_region="**********" TF_VAR_accountId="**********"`, for resource creation.
+          - `export TF_VAR_S3_STATE_BUCKET="**********" TF_VAR_S3_STATE_BUCKET_aws_region="**********"`, to store s3 backend for <i>terraform state</i>.
+     - source bucket containing raw data: `export TF_VAR_SOURCE_BUCKET_NAME=*********`. Corresponding resources will be created in the AWS.
      - For more tweaking, ref. `.env.example`
 2. Deploy using `bash deploy.sh`. The bash script does the following things:
      1. Deploy the script to ECR using the predeploy script.

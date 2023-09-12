@@ -1,3 +1,4 @@
+import os
 import xarray as xr
 import numpy as np
 import pandas as pd
@@ -47,8 +48,8 @@ def start(filename="GOESR_CRS_L1B_20170517_v0.nc", coord_type='range'):
 # helper functions
 
 def get_file_path(filename):
-    bucket_src = "fcx-raw-data-temp"
-    # bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
+    # bucket_src = "fcx-raw-data-temp"
+    bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
     path_to_file="CRS/data"
     # path_to_file = os.environ.get('PATH_TO_FEGS')
     return f"s3://{bucket_src}/{path_to_file}/{filename}"

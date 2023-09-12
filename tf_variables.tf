@@ -18,7 +18,7 @@ variable "SOURCE_BUCKET_NAME" {
   description = "Bucket with raw data files required for the subset-worker"
 
   type    = string
-  default = "fcx-raw-data"
+  default = "fcx-raw-data-temp"
 }
 
 ## variables needed for ECR image url

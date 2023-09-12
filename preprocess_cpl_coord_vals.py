@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import json
 import s3fs
@@ -50,8 +51,8 @@ def start(filename="goesrplt_CPL_ATB_L1B_17930_20170427.hdf5", coord_type="Secon
 # helper functions
 
 def get_file_path(filename):
-    bucket_src = "fcx-raw-data-temp"
-    # bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
+    # bucket_src = "fcx-raw-data-temp"
+    bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
     path_to_file="CPL/data/L1B"
     # path_to_file = os.environ.get('PATH_TO_FEGS')
     return f"s3://{bucket_src}/{path_to_file}/{filename}"

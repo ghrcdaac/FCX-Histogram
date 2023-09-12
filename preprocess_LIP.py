@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import json
@@ -48,8 +49,8 @@ def start(filename="goesr_plt_lip_20170517.txt", coord_type='Time', data_type='E
 # helper functions
 
 def get_file_path(filename):
-    bucket_src = "fcx-raw-data-temp"
-    # bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
+    # bucket_src = "fcx-raw-data-temp"
+    bucket_src = os.environ.get('SOURCE_BUCKET_NAME')
     path_to_file="LIP/data"
     # path_to_file = os.environ.get('PATH_TO_LIP')
     return f"s3://{bucket_src}/{path_to_file}/{filename}"
